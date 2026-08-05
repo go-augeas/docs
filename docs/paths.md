@@ -14,10 +14,10 @@ Absolute and relative paths, `*` name wildcard, `//` descendant axis, `.` / `..`
 
 `Get` / `Exists` / `Set` / `SetMultiple` / `Insert` / `Remove` / `Move` / `Match` / `Label` / `DefineVariable` / `DefineNode` — the full tree-mutation surface over path expressions.
 
-## Lenses & the FileSystem seam
+## The embedded `.aug` corpus interpreter
 
-`Hosts`, `Fstab`, `Shellvars` / `Simplevars` and `Ini` / `Keyvalue` round-trip via `TextStore` / `TextRetrieve`; `Load` / `Save` run through an injectable `FileSystem` seam, and load failures surface under `/augeas//error`.
+A from-scratch, pure-Go interpreter for the Augeas lens DSL (`internal/interp`) reads the **entire embedded upstream Augeas 1.14.1 lens corpus** — all 232 modules, verbatim `.aug` sources under `lenses/dist/` — plus five original contrib lenses (`Wireguard`, `Rclone`, `Caddyfile`, `Nftables`, `Unbound`) under `lenses/contrib/`. `NewEngine().Lens(module, binding)` (e.g. `Lens("Hosts", "lns")`) returns a `Lens` usable with `TextStore` / `Get` / `Set` / `Match`; `Load` / `Save` run through an injectable `FileSystem` seam, and load failures surface under `/augeas//error`. The interpreter's own get **and** put are verified correct against the corpus's inline test assertions (1791/1791, 100%), but the public `Lens.Build` for these interpreted lenses is not yet wired up — see "Deferred" in the README for what that means for `TextRetrieve`/`Save` today.
 
-## Wider lens catalogue & the `.aug` DSL _( planned )_
+## Writing your own lens
 
-Upstream ships ~200 lenses; this engine ships four hand-written ones. Interpreting the Augeas `.aug` lens DSL, byte-offset `Span` tracking and blank-line preservation are documented follow-ons.
+`Register`/`LensByName` are a pluggable seam: implement `Lens` (`Parse`/`Build`) in hand-written Go and register it under a name for full get+put round-trip control outside the interpreted corpus. No lens ships pre-registered.
