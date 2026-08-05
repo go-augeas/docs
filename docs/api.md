@@ -6,15 +6,17 @@ import "github.com/go-augeas/augeas"
 
 ```go
 a := augeas.New()
-lens, _ := augeas.LensByName("Hosts")
+lens, _ := augeas.NewEngine().Lens("Hosts", "lns") // interpreted from the embedded .aug corpus
 _ = a.TextStore(lens, "/files/etc/hosts", "127.0.0.1 localhost\n")
 
 v, _ := a.Get("/files/etc/hosts/1/canonical") // "localhost"
 _ = a.Set("/files/etc/hosts/1/alias", "loopback")
-out, _ := a.TextRetrieve(lens, "/files/etc/hosts", nil)
+// TextRetrieve/Save need Lens.Build, not yet wired up for interpreted lenses
+// (see the README's "Deferred" section) — this call returns an error today.
+_, err := a.TextRetrieve(lens, "/files/etc/hosts", nil)
 ```
 
-`New` returns an empty tree. Tree mutation and query go through path expressions: `Get`, `Exists`, `Set`, `SetMultiple`, `Insert`, `Remove`, `Move`, `Match`, `Label`, `DefineVariable`, `DefineNode`. `TextStore` / `TextRetrieve` parse and serialise text through a lens, while `Load` / `Save` read and write files through the injectable `FileSystem` seam (`ReadFile`, `WriteFile`, `Glob`); load failures are recorded under `/augeas/files/<name>/error` and reachable via `/augeas//error`.
+`New` returns an empty tree. Tree mutation and query go through path expressions: `Get`, `Exists`, `Set`, `SetMultiple`, `Insert`, `Remove`, `Move`, `Match`, `Label`, `DefineVariable`, `DefineNode`. `TextStore` / `TextRetrieve` parse and serialise text through a lens, while `Load` / `Save` read and write files through the injectable `FileSystem` seam (`ReadFile`, `WriteFile`, `Glob`); load failures are recorded under `/augeas/files/<name>/error` and reachable via `/augeas//error`. `Register`/`LensByName` let you register your own hand-written `Lens` (full get+put) when you need write-back today.
 
 ## Command line & builds
 
