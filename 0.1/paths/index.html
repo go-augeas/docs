@@ -382,18 +382,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lenses-the-filesystem-seam" class="md-nav__link">
+  <a href="#the-embedded-aug-corpus-interpreter" class="md-nav__link">
     <span class="md-ellipsis">
-      Lenses &amp; the FileSystem seam
+      The embedded .aug corpus interpreter
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#wider-lens-catalogue-the-aug-dsl-planned" class="md-nav__link">
+  <a href="#writing-your-own-lens" class="md-nav__link">
     <span class="md-ellipsis">
-      Wider lens catalogue &amp; the .aug DSL ( planned )
+      Writing your own lens
     </span>
   </a>
   
@@ -521,18 +521,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lenses-the-filesystem-seam" class="md-nav__link">
+  <a href="#the-embedded-aug-corpus-interpreter" class="md-nav__link">
     <span class="md-ellipsis">
-      Lenses &amp; the FileSystem seam
+      The embedded .aug corpus interpreter
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#wider-lens-catalogue-the-aug-dsl-planned" class="md-nav__link">
+  <a href="#writing-your-own-lens" class="md-nav__link">
     <span class="md-ellipsis">
-      Wider lens catalogue &amp; the .aug DSL ( planned )
+      Writing your own lens
     </span>
   </a>
   
@@ -561,10 +561,10 @@
 <p>Absolute and relative paths, <code>*</code> name wildcard, <code>//</code> descendant axis, <code>.</code> / <code>..</code>, positional <code>[n]</code> / <code>[last()]</code>, value <code>[sub = 'v']</code>, regexp <code>[sub =~ 're']</code> (RE2), existence predicates, union <code>|</code>, and <code>$var</code> bindings.</p>
 <h2 id="editing-api">Editing API<a class="headerlink" href="#editing-api" title="Permanent link">&para;</a></h2>
 <p><code>Get</code> / <code>Exists</code> / <code>Set</code> / <code>SetMultiple</code> / <code>Insert</code> / <code>Remove</code> / <code>Move</code> / <code>Match</code> / <code>Label</code> / <code>DefineVariable</code> / <code>DefineNode</code> — the full tree-mutation surface over path expressions.</p>
-<h2 id="lenses-the-filesystem-seam">Lenses &amp; the FileSystem seam<a class="headerlink" href="#lenses-the-filesystem-seam" title="Permanent link">&para;</a></h2>
-<p><code>Hosts</code>, <code>Fstab</code>, <code>Shellvars</code> / <code>Simplevars</code> and <code>Ini</code> / <code>Keyvalue</code> round-trip via <code>TextStore</code> / <code>TextRetrieve</code>; <code>Load</code> / <code>Save</code> run through an injectable <code>FileSystem</code> seam, and load failures surface under <code>/augeas//error</code>.</p>
-<h2 id="wider-lens-catalogue-the-aug-dsl-planned">Wider lens catalogue &amp; the <code>.aug</code> DSL <em>( planned )</em><a class="headerlink" href="#wider-lens-catalogue-the-aug-dsl-planned" title="Permanent link">&para;</a></h2>
-<p>Upstream ships ~200 lenses; this engine ships four hand-written ones. Interpreting the Augeas <code>.aug</code> lens DSL, byte-offset <code>Span</code> tracking and blank-line preservation are documented follow-ons.</p>
+<h2 id="the-embedded-aug-corpus-interpreter">The embedded <code>.aug</code> corpus interpreter<a class="headerlink" href="#the-embedded-aug-corpus-interpreter" title="Permanent link">&para;</a></h2>
+<p>A from-scratch, pure-Go interpreter for the Augeas lens DSL (<code>internal/interp</code>) reads the <strong>entire embedded upstream Augeas 1.14.1 lens corpus</strong> — all 232 modules, verbatim <code>.aug</code> sources under <code>lenses/dist/</code> — plus five original contrib lenses (<code>Wireguard</code>, <code>Rclone</code>, <code>Caddyfile</code>, <code>Nftables</code>, <code>Unbound</code>) under <code>lenses/contrib/</code>. <code>NewEngine().Lens(module, binding)</code> (e.g. <code>Lens("Hosts", "lns")</code>) returns a <code>Lens</code> usable with <code>TextStore</code> / <code>Get</code> / <code>Set</code> / <code>Match</code>; <code>Load</code> / <code>Save</code> run through an injectable <code>FileSystem</code> seam, and load failures surface under <code>/augeas//error</code>. The interpreter's own get <strong>and</strong> put are verified correct against the corpus's inline test assertions (1791/1791, 100%), but the public <code>Lens.Build</code> for these interpreted lenses is not yet wired up — see "Deferred" in the README for what that means for <code>TextRetrieve</code>/<code>Save</code> today.</p>
+<h2 id="writing-your-own-lens">Writing your own lens<a class="headerlink" href="#writing-your-own-lens" title="Permanent link">&para;</a></h2>
+<p><code>Register</code>/<code>LensByName</code> are a pluggable seam: implement <code>Lens</code> (<code>Parse</code>/<code>Build</code>) in hand-written Go and register it under a name for full get+put round-trip control outside the interpreted corpus. No lens ships pre-registered.</p>
 
 
 
